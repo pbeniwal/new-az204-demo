@@ -1,0 +1,13 @@
+location=eastus
+
+az group create --name az204-webapp-rg --location $location
+
+git clone https://github.com/pbeniwal/html-docs-hello-world.git htmlapp
+
+cd htmlapp
+
+myAppName=appdemo$RANDOM
+
+az webapp up --location $location --name $myAppName --resource-group az204-webapp-rg --html
+
+az group delete --name az204-webapp-rg --no-wait --yes

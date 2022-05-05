@@ -1,0 +1,13 @@
+In Visual Studio Code create new 
+
+1. Choose the Azure icon in the Activity bar, then in the Azure: Functions area, select Create new
+project….
+
+3. Provide the following information at the prompts:
+●● Select a language: Choose C#.
+●● Select a .NET runtime: Choose .NET Core 3.1
+●● Select a template for your project's first function: Choose Blob trigger.
+●● Provide a function name: Type BlobTrigger.
+●● Provide a namespace: Type My.Functions.
+●● Authorization level: Choose Anonymous, which enables anyone to call your function endpoint.
+●● Select how you would like to open your project: Choose Add to workspace.

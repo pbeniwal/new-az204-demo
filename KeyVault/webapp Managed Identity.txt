@@ -1,0 +1,68 @@
+mkdir akvwebapp
+cd akvwebapp
+
+dotnet new web
+
+git init --initial-branch=main
+git add .
+git commit -m "first commit"
+
+
+az group create --name "myResourceGroup" -l "EastUS"
+
+az appservice plan create --name myAppServicePlan --resource-group myResourceGroup --sku FREE
+
+webappname=mywebapp$RANDOM
+
+az webapp create --resource-group "myResourceGroup" --plan "myAppServicePlan" --name $webappname --deployment-local-git
+
+az webapp config appsettings set -g MyResourceGroup --name $webappname --settings deployment_branch=main
+
+
+
+git remote add azure <deploymentLocalGitUrl-from-create-step>
+
+git push azure main
+
+
+
+az webapp identity assign --name $webappname --resource-group "myResourceGroup"
+
+az keyvault set-policy --name "<your-keyvault-name>" --object-id "<principalId>" --secret-permissions get list
+
+dotnet add package Azure.Identity
+dotnet add package Azure.Security.KeyVault.Secrets
+
+Startup.cs
+===========
+
+using Azure.Identity;
+using Azure.Security.KeyVault.Secrets;
+using Azure.Core;
+
+SecretClientOptions options = new SecretClientOptions()
+    {
+        Retry =
+        {
+            Delay= TimeSpan.FromSeconds(2),
+            MaxDelay = TimeSpan.FromSeconds(16),
+            MaxRetries = 5,
+            Mode = RetryMode.Exponential
+         }
+    };
+var client = new SecretClient(new Uri("https://<your-unique-key-vault-name>.vault.azure.net/"), new DefaultAzureCredential(),options);
+
+KeyVaultSecret secret = client.GetSecret("<mySecret>");
+
+string secretValue = secret.Value;
+
+========================================================
+Change await context.Response.WriteAsync("Hello World!");
+========================================================
+
+await context.Response.WriteAsync(secretValue);
+
+git add .
+git commit -m "Updated web app to access my key vault"
+git push azure main
+

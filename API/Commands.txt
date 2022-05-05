@@ -1,0 +1,22 @@
+myApiName=az204-apim-$RANDOM
+myLocation=<myLocation>
+myEmail=<myEmail>
+
+az group create --name az204-apim-rg --location $myLocation
+
+az apim create -n $myApiName \
+--location $myLocation \
+--publisher-email $myEmail \
+--resource-group az204-apim-rg \
+--publisher-name AZ204-APIM-Exercise \
+--sku-name Consumption
+
+Create an Open API with following specifications:
+
+Full
+Open API Specification: https://conferenceapi.azurewebsites.net?format=json
+API Prefix URL: conference
+
+-- If required Subscription can be disabled from Settings
+
+az group delete --name az204-apim-rg --no-wait

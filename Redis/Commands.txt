@@ -1,0 +1,50 @@
+myLocation=eastus
+
+az group create --name az204-redis-rg --location $myLocation
+
+redisName=az204redis$RANDOM
+
+az redis create --location $myLocation \
+--resource-group az204-redis-rg \
+--name $redisName \
+--sku Basic --vm-size c0
+
+dotnet new console -o Rediscache
+
+dotnet add package StackExchange.Redis
+
+In the Program.cs file add the using statement below at the top.
+
+using StackExchange.Redis;
+using System.Threading.Tasks;
+
+// connection string to your Redis Cache
+static string connectionString = "REDIS_CONNECTION_STRING";
+
+static async Task Main(string[] args)
+{
+	// The connection to the Azure Cache for Redis is managed by the ConnectionMultiplexer class.
+	using (var cache = ConnectionMultiplexer.Connect(connectionString))
+	{
+		IDatabase db = cache.GetDatabase();
+		// Snippet below executes a PING to test the server connection
+		var result = await db.ExecuteAsync("ping");
+		Console.WriteLine($"PING = {result.Type} : {result}");
+		// Call StringSetAsync on the IDatabase object to set the key "test:key" to the value "100"
+		bool setValue = await db.StringSetAsync("test:key", "100");
+		Console.WriteLine($"SET: {setValue}");
+		// StringGetAsync takes the key to retrieve and return the value
+		string getValue = await db.StringGetAsync("test:key");
+		Console.WriteLine($"GET: {getValue}");
+	}
+}
+
+
+
+
+
+
+dotnet build
+dotnet run
+
+az group delete -n az204-redis-rg --no-wait

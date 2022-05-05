@@ -1,0 +1,43 @@
+location=eastus
+
+az group create --name az204-acr-rg --location $location
+
+registry=myontaineregistry$RANDOM
+
+az acr create --resource-group az204-acr-rg --name $registry --sku Basic
+
+echo FROM mcr.microsoft.com/hello-world > Dockerfile
+
+az acr build --image sample/hello-world:v1 --registry $registry --file Dockerfile .
+
+az acr repository list --name $registry --output table
+
+az acr repository show-tags --name $registry --repository sample/hello-world --output table
+
+az acr run --registry $registry --cmd '$Registry/sample/hello-world:v1' /dev/null
+
+az group delete --name az204-acr-rg --no-wait
+
+==================================================================================================
+
+location=eastus
+
+az group create --name az204-aci-rg --location $location
+
+DNS_NAME_LABEL=aci-example-$RANDOM
+
+az container create --resource-group az204-aci-rg \
+--name mycontainer \
+--image mcr.microsoft.com/azuredocs/aci-helloworld \
+--ports 80 \
+--dns-name-label $DNS_NAME_LABEL --location $location
+
+
+az container show --resource-group az204-aci-rg \
+--name mycontainer \
+--query "{FQDN:ipAddress.fqdn,ProvisioningState:provisioningState}" \
+--out table
+
+az group delete --name az204-aci-rg --no-wait --yes
+
+

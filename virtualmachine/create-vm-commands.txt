@@ -1,0 +1,25 @@
+myLocation=eastus
+
+az group create --name az204-vm-rg --location $myLocation
+
+az vm create \
+--resource-group az204-vm-rg \
+--name az204vm \
+--image UbuntuLTS \
+--generate-ssh-keys \
+--public-ip-sku Standard \
+--admin-username azureuser
+
+
+az vm open-port --port 80 \
+--resource-group az204-vm-rg \
+--name az204vm
+
+
+
+ssh azureuser@<publicIPAddress>
+
+sudo apt -y update
+sudo apt -y install nginx
+
+az group delete --name az204-vm-rg --no-wait --yes
